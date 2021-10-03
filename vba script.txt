@@ -1,0 +1,126 @@
+Sub stk_smry()
+Dim wscount As Integer
+Dim lrow As Double
+Dim opn As Double
+Dim cls As Double
+Dim ticker As String
+Dim Volume As Double
+Dim yearly As Double
+Dim yearlyper As Double
+Dim Summary_Table_Row As Integer
+Dim myrange As Range
+  
+Volume = 0
+    
+wscount = Application.Worksheets.Count
+
+For i = 1 To wscount
+Summary_Table_Row = 2
+Worksheets(i).Activate
+
+lrow = Cells(Rows.Count, 1).End(xlUp).Row
+
+'looping'
+For j = 2 To lrow
+        
+'Check if we are still within the same ticker, if it is not...'
+If Cells(j + 1, 1).Value <> Cells(j, 1).Value Then
+
+ticker = Cells(j, 1).Value
+
+Volume = Volume + Cells(j, 7).Value
+cls = Cells(j, 6).Value
+
+'printing ticker name'
+Range("I" & Summary_Table_Row).Value = ticker
+
+'printing closing value'
+Range("K" & Summary_Table_Row).Value = cls
+      
+'printing stock volume'
+Range("N" & Summary_Table_Row).Value = Volume
+
+'Add one to the summary table row'
+Summary_Table_Row = Summary_Table_Row + 1
+      
+' Reset the Volume'
+Volume = 0
+
+End If
+
+Next j
+
+lrow = Cells(Rows.Count, 1).End(xlUp).Row
+
+Summary_Table_Row = 3
+
+'looping'
+For k = 2 To lrow
+
+Range("j2").Value = Range("C2").Value
+
+'Check if we are still within the same ticker, if it is not...'
+If Cells(k + 1, 1).Value <> Cells(k, 1).Value Then
+
+opn = Cells(k + 1, 3).Value
+
+
+'printing opening value'
+Range("j" & Summary_Table_Row).Value = opn
+
+Summary_Table_Row = Summary_Table_Row + 1
+
+End If
+
+Next k
+
+lrow2 = Cells(Rows.Count, 9).End(xlUp).Row
+    
+Summary_Table_Row = 2
+    
+'Looping'
+For l = 2 To lrow2
+           
+'formula to calculate change'
+yearly = Range("K" & l).Value - Range("J" & l).Value
+                
+'Printing yearly change'
+Range("L" & Summary_Table_Row).Value = yearly
+                                
+'formula to calculate change'
+yearlyper = yearly / IIf(Range("J" & Summary_Table_Row).Value = 0, 1, Range("J" & Summary_Table_Row).Value)
+                                    
+'Printing %'
+Range("M" & Summary_Table_Row).Value = yearlyper
+                    
+'Add one to the summary table row'
+Summary_Table_Row = Summary_Table_Row + 1
+   
+Next l
+'Reset row number
+Summary_Table_Row = 0
+
+Set myrange = Range("M2:M3169")
+
+'Delete Existing Conditional Formatting from Range
+myrange.FormatConditions.Delete
+ 
+'Apply Conditional Formatting
+myrange.FormatConditions.Add Type:=xlCellValue, Operator:=xlLess, _
+Formula1:="=0"
+myrange.FormatConditions(1).Interior.Color = RGB(255, 0, 0)
+
+'Apply Conditional Formatting
+myrange.FormatConditions.Add Type:=xlCellValue, Operator:=xlGreater, _
+Formula1:="=0"
+myrange.FormatConditions(2).Interior.Color = vbGreen
+
+
+Next i
+
+
+
+
+MsgBox "Report has been generated"
+Worksheets(1).Activate
+End Sub
